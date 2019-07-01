@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Container, Image } from 'react-bootstrap';
+import { Row, Col, Image, Button, Modal } from 'react-bootstrap';
 
 const boxStyle = {
     position:'absolute',
@@ -7,7 +7,6 @@ const boxStyle = {
     right:'0',
     bottom:'0',
     left:'0',
-    zIndex:'99',
     margin:'auto',
     height:'50%',
     width:'80%',
@@ -21,19 +20,24 @@ const ImageView = (props) => {
 
     if (props.isHover) {
         lineStyle = {
-            WebkitFilter:'grayscale(0%)'
+            WebkitFilter:'grayscale(0%)',
+            cursor: 'pointer'
         }
     } else {
         lineStyle = {
-            WebkitFilter:'grayscale(100%)'
+            WebkitFilter:'grayscale(100%)',
+            cursor: 'pointer'
         } 
     }
     return (
+        <div>
         <Image 
             style={lineStyle} 
             onMouseOver={() => props.onMouseOver()}
             onMouseLeave={() => props.onMouseLeave()}
-            src={props.images} />
+            src={props.images} 
+            onClick={props.onClick} />
+        </div>
     )
 }
 
@@ -43,14 +47,20 @@ class HomePage extends Component {
         this.state = {
             hover: [false, false, false, false],
             data: [
-                {title: "Batik Semarang", images: "./images/batik_semarang.jpg"},
-                {title: "Batik Jogjakarta", images: "./images/batik_jogjakarta.jpg"},
-                {title: "Batik Madura", images: "./images/batik_madura.jpg"},
-                {title: "Batik solo", images: "./images/batik_solo.jpg"}
+                {title: "Batik Semarang", images: "./images/batik_semarang.jpg", descriptions: "Ini adalah batik Semarang"},
+                {title: "Batik Jogjakarta", images: "./images/batik_jogjakarta.jpg", descriptions: "Ini adalah batik Jogjakarta"},
+                {title: "Batik Madura", images: "./images/batik_madura.jpg", descriptions: "Ini adalah batik Madura"},
+                {title: "Batik Solo", images: "./images/batik_solo.jpg", descriptions: "Ini adalah batik Solo"}
             ],
+            show: false,
+            title: "loading...",
+            descriptions: "loading..."
         };
         this.toggleHover = this.toggleHover.bind(this);
         this.toggleHoverOut = this.toggleHoverOut.bind(this);
+
+        this.handleShow = this.handleShow.bind(this);
+        this.handleClose = this.handleClose.bind(this);
     }
 
     toggleHover(i) {
@@ -72,10 +82,22 @@ class HomePage extends Component {
         this.setState({ ...this.state, hover: [false, false, false, false] });
     }
 
+    handleClose() {
+        this.setState({ show: false });
+    }
+
+    handleShow(title, descriptions) {
+        this.setState({
+             show: true,
+             title: title,
+             descriptions: descriptions
+        });
+    }
+
     render() {
         return (
             <div style={boxStyle}>
-                <Container>
+                {/* <Container> */}
                     <Row>
                         {this.state.data.map((d, i) => {
                             return (
@@ -86,14 +108,27 @@ class HomePage extends Component {
                                         onMouseOver={this.toggleHover(i)}
                                         onMouseLeave={this.toggleHoverOut}
                                         isHover={this.state.hover[i]}
+                                        onClick={(e) => this.handleShow(d.title, d.descriptions)}
                                     >
 
                                     </ImageView>
+                                    
                                 </Col>
                             );
                         })}
+                        <Modal show={this.state.show} onHide={this.handleClose}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>{this.state.title}</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>{this.state.descriptions}</Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="primary" onClick={this.handleClose}>
+                            Close
+                            </Button>
+                        </Modal.Footer>
+                        </Modal>
                     </Row>
-                </Container>
+                {/* </Container> */}
             </div>
         )
     }
